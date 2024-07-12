@@ -94,9 +94,9 @@ dna_methylation_scaled = scaler.fit_transform(dna_methylation_data)
 mirna_expression_scaled = scaler.fit_transform(mirna_expression_data)
 
 # PCA降维
-pca_gene = PCA(n_components=50)
-pca_dna = PCA(n_components=50)
-pca_mirna = PCA(n_components=50)
+pca_gene = PCA(n_components=1000)
+pca_dna = PCA(n_components=1000)
+pca_mirna = PCA(n_components=100)
 
 print("PCA step completed")
 
@@ -125,40 +125,45 @@ class ImprovedMultiOmicsNN(nn.Module):
     def __init__(self):
         super(ImprovedMultiOmicsNN, self).__init__()
         self.fc_gene = nn.Sequential(
-            nn.Linear(50, 64),
-            nn.BatchNorm1d(64),
+            nn.Linear(1000, 648),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Linear(648, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
             nn.Linear(64, 32),
             nn.ReLU()
         )
         self.fc_dna = nn.Sequential(
-            nn.Linear(50, 64),
-            nn.BatchNorm1d(64),
+            nn.Linear(1000, 648),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Linear(648, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
             nn.Linear(64, 32),
             nn.ReLU()
         )
         self.fc_mirna = nn.Sequential(
-            nn.Linear(50, 64),
-            nn.BatchNorm1d(64),
+            nn.Linear(100, 64),
             nn.ReLU(),
-            nn.Dropout(0.2),
             nn.Linear(64, 32),
             nn.ReLU()
         )
         self.fc_combined = nn.Sequential(
             nn.Linear(32 * 3, 64),
             nn.ReLU(),
-            nn.Dropout(0.5),
-            nn.Linear(64, 150)
+            nn.Linear(64, 2100)
         )
 
     def forward(self, x_integrated):
-        x_gene_encoded = self.fc_gene(x_integrated[:, :50])
-        x_dna_encoded = self.fc_dna(x_integrated[:, 50:100])
-        x_mirna_encoded = self.fc_mirna(x_integrated[:, 100:])
+        x_gene_encoded = self.fc_gene(x_integrated[:, :1000])
+        x_dna_encoded = self.fc_dna(x_integrated[:, 1000:2000])
+        x_mirna_encoded = self.fc_mirna(x_integrated[:, 2000:])
         x_combined = torch.cat((x_gene_encoded, x_dna_encoded, x_mirna_encoded), dim=1)
         output = self.fc_combined(x_combined)
         return output
