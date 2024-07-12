@@ -10,7 +10,7 @@ from lifelines.statistics import logrank_test
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
 
@@ -316,4 +316,3 @@ find_optimal_k_and_plot(clinical_data, all_outputs, range(2, 10))
 
 
 #jupyter notebook --no-browser --port=8857 --ip=127.0.0.1 --allow-root
-
