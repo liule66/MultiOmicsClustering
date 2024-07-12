@@ -67,7 +67,7 @@ def clean_data(data):
 # 清理每种数据
 gene_expression_data = clean_data(gene_expression_data)
 dna_methylation_data = clean_data(dna_methylation_data)
-mirna_expression_data = clean_data(mirna_expression_data)
+mirna_expression_data = clean_data(miRNA_expression_data)
 clinical_data['OS.time'] = clinical_data['OS.time'].fillna(clinical_data['last_contact_days_to'])
 clinical_data['OS.time'].fillna(clinical_data['OS.time'].mean(), inplace=True)
 gene_expression_data = gene_expression_data.iloc[:, :].values.T
