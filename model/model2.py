@@ -21,7 +21,7 @@ def load_csv(file_path, nrows=None):
 # 加载数据集
 gene_expression = load_csv('EB++AdjustPANCAN_IlluminaHiSeq_RNASeqV2.geneExp.xena', nrows=20000)
 print("Size of gene_expression dataset: ", gene_expression.shape)
-dna_methylation = load_csv('DNA_methylation_450k', nrows=100000)
+dna_methylation = load_csv('DNA_methylation_450k', nrows=30000)
 print("Size of dna_methylation dataset: ", dna_methylation.shape)
 mirna_expression = load_csv('pancanMiRs_EBadjOnProtocolPlatformWithoutRepsWithUnCorrectMiRs_08_04_16.xena', nrows=700)
 print("Size of mirna_expression dataset: ", mirna_expression.shape)
@@ -163,13 +163,13 @@ class ImprovedMultiOmicsNN(nn.Module):
         self.fc_combined = nn.Sequential(
             nn.Linear(32 * 3, 64),
             nn.ReLU(),
-            nn.Linear(64, 2100)
+            nn.Linear(64, 11100)
         )
 
     def forward(self, x_integrated):
         x_gene_encoded = self.fc_gene(x_integrated[:, :1000])
-        x_dna_encoded = self.fc_dna(x_integrated[:, 1000:2000])
-        x_mirna_encoded = self.fc_mirna(x_integrated[:, 2000:])
+        x_dna_encoded = self.fc_dna(x_integrated[:, 10000:20000])
+        x_mirna_encoded = self.fc_mirna(x_integrated[:, 20000:])
         x_combined = torch.cat((x_gene_encoded, x_dna_encoded, x_mirna_encoded), dim=1)
         output = self.fc_combined(x_combined)
         return output

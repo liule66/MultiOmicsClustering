@@ -20,9 +20,9 @@ def load_csv(file_path, nrows=None):
     return pd.read_csv(file_path, sep='\t', nrows=nrows, engine='python')
 
 # 加载数据集
-gene_expression = load_csv('EB++AdjustPANCAN_IlluminaHiSeq_RNASeqV2.geneExp.xena', nrows=20000)
+gene_expression = load_csv('EB++AdjustPANCAN_IlluminaHiSeq_RNASeqV2.geneExp.xena', nrows=7000)
 print("Size of gene_expression dataset: ", gene_expression.shape)
-dna_methylation = load_csv('DNA_methylation_450k', nrows=100000)
+dna_methylation = load_csv('DNA_methylation_450k', nrows=7000)
 print("Size of dna_methylation dataset: ", dna_methylation.shape)
 mirna_expression = load_csv('pancanMiRs_EBadjOnProtocolPlatformWithoutRepsWithUnCorrectMiRs_08_04_16.xena', nrows=700)
 print("Size of mirna_expression dataset: ", mirna_expression.shape)
@@ -85,7 +85,8 @@ mirna_expression_scaled = scaler.fit_transform(mirna_expression_data)
 
 # 使用PCA进行降维
 pca_gene = PCA(n_components=1000)
-pca_dna = PCA(n_components=10000)
+# Adjusting n_components for dna_methylation PCA
+pca_dna = PCA(n_components=min(7000, dna_methylation_data.shape[1]))
 pca_mirna = PCA(n_components=100)
 
 print("PCA step completed")
