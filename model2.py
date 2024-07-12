@@ -53,11 +53,22 @@ print("Size of miRNA_expression_data: ", miRNA_expression_data.shape)
 print("load dataset Successfully")
 
 # 定义清理函数
+
 def clean_data(data):
+    # 将非数字强制转换为NaN
     data = data.apply(pd.to_numeric, errors='coerce')
+    # 删除缺失值过多的列
     data = data.dropna(axis=1, thresh=0.7*data.shape[0])
+    # 填充缺失值
     data = data.apply(lambda row: row.fillna(row.mean()), axis=1)
-    data = data.fillna(0)
+    # 异常值处理，这里使用简单的方法将所有值限制在其99%的分位数范围内
+    for column in data.columns:
+        upper_limit = data[column].quantile(0.99)
+        lower_limit = data[column].quantile(0.01)
+        data[column] = data[column].clip(lower=lower_limit, upper=upper_limit)
+    # 特征缩放
+    scaler = MinMaxScaler()
+    data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
     return data
 
 # 清理每种数据
@@ -76,11 +87,6 @@ mirna_expression_data = mirna_expression_data.iloc[:, :].values.T
 print("Size of gene_expression_data: ", gene_expression_data.shape)
 print("Size of dna_methylation_data: ", dna_methylation_data.shape)
 print("Size of miRNA_expression_data: ", mirna_expression_data.shape)
-
-# Replace NaN values with the mean of the column
-gene_expression_data = np.nan_to_num(gene_expression_data, nan=np.nanmean(gene_expression_data))
-dna_methylation_data = np.nan_to_num(dna_methylation_data, nan=np.nanmean(dna_methylation_data))
-mirna_expression_data = np.nan_to_num(mirna_expression_data, nan=np.nanmean(mirna_expression_data))
 
 scaler = StandardScaler()
 gene_expression_scaled = scaler.fit_transform(gene_expression_data)
@@ -122,7 +128,7 @@ class ImprovedMultiOmicsNN(nn.Module):
             nn.Linear(50, 64),
             nn.BatchNorm1d(64),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(64, 32),
             nn.ReLU()
         )
@@ -130,7 +136,7 @@ class ImprovedMultiOmicsNN(nn.Module):
             nn.Linear(50, 64),
             nn.BatchNorm1d(64),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(64, 32),
             nn.ReLU()
         )
@@ -138,7 +144,7 @@ class ImprovedMultiOmicsNN(nn.Module):
             nn.Linear(50, 64),
             nn.BatchNorm1d(64),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(64, 32),
             nn.ReLU()
         )
