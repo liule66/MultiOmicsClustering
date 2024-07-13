@@ -185,7 +185,7 @@ def reconstruction_loss(reconstructed, original):
     return mse_loss(reconstructed, original)
 
 # 训练模型
-num_epochs = 50
+num_epochs = 200
 prev_loss = float('inf')
 loss_list = []
 
