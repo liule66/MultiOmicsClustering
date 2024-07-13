@@ -95,14 +95,14 @@ mirna_expression_scaled = scaler.fit_transform(mirna_expression_data)
 
 # PCA降维
 pca_gene = PCA(n_components=1000)
-pca_dna = PCA(n_components=10000)
+pca_dna = PCA(n_components=3000)
 pca_mirna = PCA(n_components=100)
-
-print("PCA step completed")
 
 gene_expression_pca = pca_gene.fit_transform(gene_expression_scaled)
 dna_methylation_pca = pca_dna.fit_transform(dna_methylation_scaled)
 mirna_expression_pca = pca_mirna.fit_transform(mirna_expression_scaled)
+
+print("PCA step completed")
 
 # 数据整合
 integrated_data = np.concatenate([gene_expression_pca, dna_methylation_pca, mirna_expression_pca], axis=1)
@@ -137,11 +137,8 @@ class ImprovedMultiOmicsNN(nn.Module):
             nn.ReLU()
         )
         self.fc_dna = nn.Sequential(
-            nn.Linear(10000, 6480),
-            nn.ReLU(),
-            nn.Linear(6480, 2560),
-            nn.ReLU(),
-            nn.Linear(2560, 1280),
+
+            nn.Linear(3000, 1280),
             nn.ReLU(),
             nn.Linear(1280, 640),
             nn.ReLU(),
@@ -163,13 +160,13 @@ class ImprovedMultiOmicsNN(nn.Module):
         self.fc_combined = nn.Sequential(
             nn.Linear(32 * 3, 64),
             nn.ReLU(),
-            nn.Linear(64, 11100)
+            nn.Linear(64, 4100)
         )
 
     def forward(self, x_integrated):
         x_gene_encoded = self.fc_gene(x_integrated[:, :1000])
-        x_dna_encoded = self.fc_dna(x_integrated[:, 10000:20000])
-        x_mirna_encoded = self.fc_mirna(x_integrated[:, 20000:])
+        x_dna_encoded = self.fc_dna(x_integrated[:, 1000:4000])
+        x_mirna_encoded = self.fc_mirna(x_integrated[:, 4000:])
         x_combined = torch.cat((x_gene_encoded, x_dna_encoded, x_mirna_encoded), dim=1)
         output = self.fc_combined(x_combined)
         return output
@@ -327,3 +324,4 @@ find_optimal_k_and_plot(clinical_data, all_outputs, range(2, 10))
 
 
 #jupyter notebook --no-browser --port=8857 --ip=127.0.0.1 --allow-root
+#ssh -L 8857:localhost:8857 zxzhu@218.199.69.54

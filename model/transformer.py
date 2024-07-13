@@ -86,7 +86,7 @@ mirna_expression_scaled = scaler.fit_transform(mirna_expression_data)
 # 使用PCA进行降维
 pca_gene = PCA(n_components=1000)
 # Adjusting n_components for dna_methylation PCA
-pca_dna = PCA(n_components=min(7000, dna_methylation_data.shape[1]))
+pca_dna = PCA(n_components=3000)
 pca_mirna = PCA(n_components=100)
 
 print("PCA step completed")
